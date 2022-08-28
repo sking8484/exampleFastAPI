@@ -1,12 +1,13 @@
 
 from typing import Optional, List
-from fastapi import FastAPI, status, HTTPException
+from fastapi import FastAPI, status, HTTPException, Depends
 from fastapi.params import Body
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
 from random import randrange
 import mysql.connector as sqlconnection
-from utils import dbInfo
+from utils import dbInfo, models
 from . import schemas, utils
 from .routers import posts, user, auth, vote
 from .config import settings
@@ -22,9 +23,11 @@ except Exception as e:
   print('Connection Failed')
   print('Error: ' f"{e}")
 
-
+models.Base.metadata.create_all(bind=dbInfo.engine)
 
 app = FastAPI()
+
+
 
 origins = ["*"]
 app.add_middleware(
@@ -44,11 +47,10 @@ app.include_router(vote.router)
 async def root():
   return {"message":"Hello bum"}
 
-@app.post('/createTable')
-def createTable():
-  tableGenerator = dbInfo.createTables()
-  tableGenerator.CreateUserTable()
 
 
+@app.get('/sqlalchemy')
+def test_posts(db: Session = Depends(dbInfo.get_db)):
+  posts = db.query(models.Post).all()
 
-
+  return {'data':posts}

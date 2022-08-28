@@ -8,22 +8,32 @@ class PostBase(BaseModel):
   content: str
   published: bool = True
 
+  class Config:
+    orm_mode = True
+
 class PostCreate(PostBase):
   pass
 
 
 class PostResponse(PostBase):
   id:int
-  dateCreated: datetime
-  posts_users_fk: int
+  created_at: datetime
+  owner_id: int
+
 
 class UserCreate(BaseModel):
   email:EmailStr
   password:str
 
+  class Config:
+    orm_mode = True
+
 class UserResponse(BaseModel):
   id: str
   email:EmailStr
+
+  class Config:
+    orm_mode = True
 
 class UserLogin(BaseModel):
   email: EmailStr
